@@ -1,8 +1,5 @@
 <?php
 
-// echo 'config/config.php';
-// echo "<br />".get_include_path();
-
 //this is done so in the other phps, we do not have to write a long path name
 set_include_path( get_include_path() . PATH_SEPARATOR . $_SERVER['DOCUMENT_ROOT'] );
 // echo "<br />".get_include_path();
@@ -14,6 +11,11 @@ if(isset($_SESSION) && isset($_SESSION['username'])){
     'emailid' => $_SESSION['useremailid'],
     'prefcuisines' => $_SESSION['userprefcuisines'],
   ];
+  $criteria = explode(",", $_SESSION['userprefcuisines']);
+  error_log('$_SESSION :');
+  error_log(($_SESSION['userprefcuisines']),4);
+  error_log('criteria:');
+  error_log($criteria);
 }
 
 if(strlen(getenv("CLEARDB_DATABASE_URL"))>0){//as is available in the heroku envt.
@@ -29,7 +31,6 @@ if(strlen(getenv("CLEARDB_DATABASE_URL"))>0){//as is available in the heroku env
   $db = 'heroku_ea57684a56e6710';
 }
 
-// $conn = new mysqli($server, $username, $password, $db);
 $conn = mysqli_connect($server, $username, $password, $db);
 mysqli_set_charset($conn, 'utf8mb4');
 
@@ -38,23 +39,15 @@ mysqli_set_charset($conn, 'utf8mb4');
 // above, 0 - Default. Message is sent to PHP's system logger
 // 4 - Message is sent directly to the SAPI logging handler
 
-/*
-//for error_log(message), can also send email..
-if (!($foo = allocate_new_foo())) {
-  error_log("Oh no! We are out of FOOs!", 1, "admin@example.com");
-}
-*/
 
-function getTestData1($conn){
-  $sql = "SELECT * FROM test_table";
+function showPersonalRecommendations($conn,$cuisine){
+  $sql = "SELECT * FROM restaurants WHERE cuisine = '".$cuisine."' ORDER BY avgrating DESC LIMIT 1";
+  
   return mysqli_query($conn,$sql);
 }
 
-
 function searchForRestaurants($conn,$criteria){
-  $sql = "SELECT name, cuisine, locality, avgbudget, avgrating";
-  $sql .= " FROM restaurants";
-  $sql .= " WHERE";
+  $sql = "SELECT * FROM restaurants WHERE";
   $whereconditions = array();
   
   if(isset($criteria['cuisines']) && count($criteria['cuisines'])>0){
@@ -93,18 +86,16 @@ function searchForRestaurants($conn,$criteria){
   return mysqli_query($conn,$sql);
 }
 
-// SELECT name, locality, avgrating FROM restaurants WHERE (cuisines = 'northindian' OR cuisines = 'american' OR cuisines = 'italian' OR cuisines = 'desserts' AND locations = 'kamanahalli')
-// Central Bangalore    21
-// East Bangalore   29
-// Kormangala   31
-// North Bangalore  8
-// South Bangalore  9
-// West Bangalore   1
 
+function showBestRatedRestaurant($conn){
+  $sql = "SELECT * FROM restaurants ORDER BY avgrating DESC LIMIT 1" ;
+  error_log(print_r($sql,true),4);
+  return mysqli_query($conn,$sql);
+}
 
 function createUser($conn,$userdata){
   $sql = "SELECT COUNT(*) AS howmany FROM users WHERE emailid = ";
-  $sql .= "'" . mysqli_real_escape_string($conn,$userdata['emailid']) . "'";
+  $sql .= "'" . mysqli_real_escape_string($conn,$userdata['emailid']) . "'";//escapes special characters for use in SQL statement 
 
   // error_log(print_r($sql,true),4);//to console
   // $result1 = mysqli_query($conn,$sql);
@@ -168,39 +159,4 @@ function loginUser($conn,$userdata){
   }
 }
 
-
-/*
-  // example code below...
-
-  require("_/inc/functions.php");
-
-  //Constants
-  define("FROM_EMAIL", "https://phpstarter.herokuapp.com/ <webform@https://phpstarter.herokuapp.com/>");
-  
-  //Setup Variable for tracking VirtualPageViews in analytics.
-  $VirtualPageView = "";
-
-  //Variables to store Site/URL information
-  $ServerName = $_SERVER['SERVER_NAME'];
-  $SiteSection = "";
-  $SubSection = "";
-
-  $RequestMethod = $_SERVER['REQUEST_METHOD'];
-  $FormErrors = array();
-
-  setSectionInfo();
-
-  //SET SERVER SPECIFIC VARIABLES AND CONSTANTS
-  switch ($ServerName) {
-    case 'http://localhost/phpstarter/dist/':
-      define("CONTACT_EMAIL", "");
-      define("ANALYTICS_ID", "");
-      break;
-    
-    case 'https://phpstarter.herokuapp.com/':
-      define("CONTACT_EMAIL", "");
-      define("ANALYTICS_ID", "");
-      break;
-  }
-*/
 ?>

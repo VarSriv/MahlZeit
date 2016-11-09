@@ -23,7 +23,7 @@
   </div>
   <div class="mainnav">
     <div class="container">
-      <p>Latest Reviews | 
+      <p><!--Latest Reviews |--> 
         <?php
           if(isset($sessionuser)){
             echo '<span title="'

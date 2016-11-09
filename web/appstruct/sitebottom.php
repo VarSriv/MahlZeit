@@ -2,7 +2,7 @@
   <div class="container">
     <div class="row text-center">
       <p>Thankyou for visiting</p>
-      <p>Project Team &copy; <?php echo date('Y');?></p>
+      <p>Project Team- Varnika,Varuni,Vedanti &copy; <?php echo date('Y');?></p>
     </div>
   </div>
 </footer>
